@@ -1,0 +1,173 @@
+#include <stdio.h>
+#include <string.h>
+
+#include <SDL2/SDL.h>
+
+#define err (printf("%s\n",SDL_GetError()))
+#define WIN_X 640 
+#define WIN_Y 960
+
+SDL_Window *win;
+SDL_Surface *winSurface;
+
+SDL_Surface *font[40];
+
+int
+init () {
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+		err;
+		return 1;
+	}
+	win = SDL_CreateWindow("game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_X, WIN_Y, SDL_WINDOW_SHOWN);
+	if (!win) {
+		err;
+		return 1;
+	}
+	winSurface = SDL_GetWindowSurface(win);
+	if (!winSurface) {
+		err;
+		return 1;
+	}
+	return 0;
+}
+
+// don't call this again unless you want to reload different fonts
+int
+load_fonts () {
+	char index[10];
+	char bmp[5] = ".bmp";
+
+	for (int i = 0; i < 40; i++) {
+		char filename[30] = "assets/fonts/";
+		sprintf(index, "%d", i);
+		strcat(index, bmp);
+		strcat(filename, index); 
+
+		font[i] = SDL_LoadBMP(filename);
+		if (!font[i]) {
+			err;
+			return 1;
+		}
+	}
+
+	return 0;
+
+}
+
+void 
+kill () {
+	//shut down
+	for (int i = 0; i < 39; i++) {
+		SDL_FreeSurface(font[i]);
+	}
+
+	SDL_DestroyWindow( win );
+	SDL_Quit();
+}
+
+int 
+grabc (char c) {
+	int value;
+
+    	switch (c) {
+		case 'A': value = 0; break;
+		case 'B': value = 1; break;
+		case 'C': value = 2; break;
+		case 'D': value = 3; break;
+		case 'E': value = 4; break;
+		case 'F': value = 5; break;
+		case 'G': value = 6; break;
+		case 'H': value = 7; break;
+		case 'I': value = 8; break;
+		case 'J': value = 9; break;
+		case 'K': value = 10; break;
+		case 'L': value = 11; break;
+		case 'M': value = 12; break;
+		case 'N': value = 13; break;
+		case 'O': value = 14; break;
+		case 'P': value = 15; break;
+		case 'Q': value = 16; break;
+		case 'R': value = 17; break;
+		case 'S': value = 18; break;
+		case 'T': value = 19; break;
+		case 'U': value = 20; break;
+		case 'V': value = 21; break;
+		case 'W': value = 22; break;
+		case 'X': value = 23; break;
+		case 'Y': value = 24; break;
+		case 'Z': value = 25; break;
+		case '?': value = 26; break;
+		case '.': value = 27; break;
+		case ',': value = 28; break;
+		case '0': value = 29; break;
+		case '1': value = 30; break;
+		case '2': value = 31; break;
+		case '3': value = 32; break;
+		case '4': value = 33; break;
+		case '5': value = 34; break;
+		case '6': value = 35; break;
+		case '7': value = 36; break;
+		case '8': value = 37; break;
+		case '9': value = 38; break;
+        	default: value = 40; // return 40 (blank) for non-standard and spaces 
+    	}
+    return value;
+}
+
+int
+speak (char msg[], int msgc, Uint32 delay) {
+	int c;
+
+	SDL_Rect ptr;
+	ptr.x = 0;
+	ptr.y = 0;
+
+	for (int i = 0; i < msgc; i++) {	
+		c = grabc(msg[i]);
+		
+		SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
+		SDL_UpdateWindowSurface(win);
+		SDL_Delay(delay);
+		ptr.x+=50;
+	}	
+
+	return 0;
+}
+
+int
+main (){
+	if(!init()) err;
+	if (!load_fonts()) err;
+
+
+	int running = 1;
+	SDL_Event ev;
+	if (speak("HOUSTON THIS IS ME SPEAKING", 27, 100) == 1) return 1;
+
+
+	while (running) {
+		// Event loop
+		while (SDL_PollEvent(&ev) != 0) {
+			switch (ev.type) {
+				case SDL_QUIT:
+					running = 0;
+					printf("quitting\n");
+					break;
+
+				case SDL_KEYDOWN:
+					switch (ev.key.keysym.sym) {
+					}
+					break;
+			}
+		}
+
+		SDL_Delay(100);
+	}
+
+	kill();
+}
+
+
+
+
+
