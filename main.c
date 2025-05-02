@@ -18,7 +18,7 @@ init () {
 		err;
 		return 1;
 	}
-	win = SDL_CreateWindow("game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_X, WIN_Y, SDL_WINDOW_SHOWN);
+	win = SDL_CreateWindow("Don't Open the Box", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_X, WIN_Y, SDL_WINDOW_SHOWN);
 	if (!win) {
 		err;
 		return 1;
@@ -65,6 +65,10 @@ kill () {
 	SDL_Quit();
 }
 
+/*
+helper functions for speak
+*/
+
 int 
 grabc (char c) {
 	int value;
@@ -109,25 +113,40 @@ grabc (char c) {
 		case '7': value = 36; break;
 		case '8': value = 37; break;
 		case '9': value = 38; break;
+		//magic numbers lmao
+		case '\n': value = -1; break;
         	default: value = 40; // return 40 (blank) for non-standard and spaces 
     	}
     return value;
 }
 
+
+//delay: amount of time between each message bleep
+//this may not be memory safe but we'll see
 int
-speak (char msg[], int msgc, Uint32 delay) {
+speak (char msg[256], Uint32 delay) {
 	int c;
 
 	SDL_Rect ptr;
-	ptr.x = 0;
-	ptr.y = 0;
+	ptr.x = 15;
+	ptr.y = 630;
 
-	for (int i = 0; i < msgc; i++) {	
+	for (int i = 0; i < 256; i++) {	
+		if (msg[i] == '\0') return 0;
 		c = grabc(msg[i]);
 		
-		SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
+		if (c >= 0) {
+			SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
+			SDL_Delay(delay);
+		}
+		else {
+			//if (c == -1) {
+				ptr.y += 50;
+				ptr.x = -85;
+			//}
+		}
+
 		SDL_UpdateWindowSurface(win);
-		SDL_Delay(delay);
 		ptr.x+=50;
 	}	
 
@@ -139,10 +158,14 @@ main (){
 	if(!init()) err;
 	if (!load_fonts()) err;
 
+//	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
+
+	char messages[][256] = {"HELLO WORLD", "HELLO WORLD"};
+
 
 	int running = 1;
 	SDL_Event ev;
-	if (speak("HOUSTON THIS IS ME SPEAKING", 27, 100) == 1) return 1;
+	int msg = 0;
 
 
 	while (running) {
@@ -156,6 +179,14 @@ main (){
 
 				case SDL_KEYDOWN:
 					switch (ev.key.keysym.sym) {
+						case SDLK_z:
+							speak(messages[msg], 50);
+							++msg;
+							break;
+						case SDLK_x:
+							speak(messages[msg], 25);
+							++msg;
+							break;
 					}
 					break;
 			}
