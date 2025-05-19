@@ -1,16 +1,71 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <SDL2/SDL.h>
+#include <SDL/SDL.h>
 
 #define err (printf("%s\n",SDL_GetError()))
 #define WIN_X 640 
 #define WIN_Y 960
 
+int lost;
+
 SDL_Window *win;
 SDL_Surface *winSurface;
 
 SDL_Surface *font[40];
+
+int init ();
+int load_game_state ();
+int load_fonts ();
+void kill ();
+int grabc (char c);
+int speak (char msg[256], Uint32 delay);
+
+int
+main (){
+	if(!init()) err;
+	if (!load_fonts()) err;
+	if (!load_game_state()) err;
+
+//	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
+
+	int running = 1;
+	SDL_Event ev;
+	int msg = 0;
+
+
+	while (running) {
+		// Event loop
+		while (SDL_PollEvent(&ev) != 0) {
+			switch (ev.type) {
+				case SDL_QUIT:
+					running = 0;
+					printf("quitting\n");
+					break;
+
+				case SDL_KEYDOWN:
+					switch (ev.key.keysym.sym) {
+						case SDLK_z:
+							if (msg < 2) {
+								speak("HELLO WORLD", 50);
+								++msg;
+							}
+							break;
+						case SDLK_x:
+							speak("HELLO WORLD", 25);
+							++msg;
+							break;
+					}
+					break;
+			}
+		}
+
+		SDL_Delay(100);
+	}
+
+	kill();
+}
+
 
 int
 init () {
@@ -31,7 +86,22 @@ init () {
 	return 0;
 }
 
-// don't call this again unless you want to reload different fonts
+int
+load_game_state () {
+	FILE* gamestate = fopen("gamestate", "r");
+	if (!gamestate) {
+		perror("File opening failed");
+		return 1;
+	} 
+
+	char gs[1];
+	fgets(gs, sizeof gs, gamestate);
+	printf("%s\n", gs);
+
+	fclose(gamestate);
+	return 0;
+} 
+
 int
 load_fonts () {
 	char index[10];
@@ -115,7 +185,8 @@ grabc (char c) {
 		case '9': value = 38; break;
 		//magic numbers lmao
 		case '\n': value = -1; break;
-        	default: value = 40; // return 40 (blank) for non-standard and spaces 
+		case '\0': value = 40; break;
+        	default: value = 41; // return 40 (blank) for non-standard and spaces 
     	}
     return value;
 }
@@ -140,10 +211,8 @@ speak (char msg[256], Uint32 delay) {
 			SDL_Delay(delay);
 		}
 		else {
-			//if (c == -1) {
-				ptr.y += 50;
-				ptr.x = -85;
-			//}
+			ptr.y += 50;
+			ptr.x = -85;
 		}
 
 		SDL_UpdateWindowSurface(win);
@@ -152,53 +221,6 @@ speak (char msg[256], Uint32 delay) {
 
 	return 0;
 }
-
-int
-main (){
-	if(!init()) err;
-	if (!load_fonts()) err;
-
-//	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
-
-	char messages[][256] = {"HELLO WORLD", "HELLO WORLD"};
-
-
-	int running = 1;
-	SDL_Event ev;
-	int msg = 0;
-
-
-	while (running) {
-		// Event loop
-		while (SDL_PollEvent(&ev) != 0) {
-			switch (ev.type) {
-				case SDL_QUIT:
-					running = 0;
-					printf("quitting\n");
-					break;
-
-				case SDL_KEYDOWN:
-					switch (ev.key.keysym.sym) {
-						case SDLK_z:
-							speak(messages[msg], 50);
-							++msg;
-							break;
-						case SDLK_x:
-							speak(messages[msg], 25);
-							++msg;
-							break;
-					}
-					break;
-			}
-		}
-
-		SDL_Delay(100);
-	}
-
-	kill();
-}
-
-
 
 
 

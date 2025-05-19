@@ -1,0 +1,7 @@
+DONE implement text rendering
+TODO tic tac toe game + AI 
+TODO Dialogue logic
+TODO Timer implementation
+TODO Game end screen transition
+
+TODO Gamestate logic
