@@ -12,7 +12,7 @@ int lost;
 SDL_Window *win;
 SDL_Surface *winSurface;
 
-SDL_Surface *font[40];
+SDL_Surface *font[50];
 
 int init ();
 int load_game_state ();
@@ -27,12 +27,11 @@ main (){
 	if (!load_fonts()) err;
 	if (!load_game_state()) err;
 
-//	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
+	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
 
 	int running = 1;
 	SDL_Event ev;
 	int msg = 0;
-
 
 	while (running) {
 		// Event loop
@@ -52,7 +51,7 @@ main (){
 							}
 							break;
 						case SDLK_x:
-							speak("HELLO WORLD", 25);
+							speak(",",25);
 							++msg;
 							break;
 					}
@@ -170,23 +169,34 @@ grabc (char c) {
 		case 'X': value = 23; break;
 		case 'Y': value = 24; break;
 		case 'Z': value = 25; break;
-		case '?': value = 26; break;
-		case '.': value = 27; break;
-		case ',': value = 28; break;
-		case '0': value = 29; break;
-		case '1': value = 30; break;
-		case '2': value = 31; break;
-		case '3': value = 32; break;
-		case '4': value = 33; break;
-		case '5': value = 34; break;
-		case '6': value = 35; break;
-		case '7': value = 36; break;
-		case '8': value = 37; break;
-		case '9': value = 38; break;
+		case '(': value = 26; break;
+		case ')': value = 27; break;
+		case ' ': value = 28; break;
+		case '!': value = 29; break;
+		case '?': value = 30; break;
+		case ':': value = 31; break;
+		case ';': value = 32; break;
+		case '<': value = 33; break;
+		case '>': value = 34; break;
+		case '=': value = 35; break;
+		case '/': value = 36; break;
+		case '0': value = 37; break;
+		case '1': value = 38; break;
+		case '2': value = 39; break;
+		case '3': value = 40; break;
+		case '4': value = 41; break;
+		case '5': value = 42; break;
+		case '6': value = 43; break;
+		case '7': value = 44; break;
+		case '8': value = 45; break;
+		case '9': value = 46; break;
+		case ',': value = 47; break;
+		case '.': value = 48; break;
+		case '"': value = 48; break;
+		case '\'': value = 49; break;
 		//magic numbers lmao
 		case '\n': value = -1; break;
-		case '\0': value = 40; break;
-        	default: value = 41; // return 40 (blank) for non-standard and spaces 
+        	default: value = 100; // return 40 (blank) for non-standard and spaces 
     	}
     return value;
 }
@@ -216,7 +226,7 @@ speak (char msg[256], Uint32 delay) {
 		}
 
 		SDL_UpdateWindowSurface(win);
-		ptr.x+=50;
+		ptr.x+=25;
 	}	
 
 	return 0;
