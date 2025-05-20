@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
-#define err (printf("%s\n",SDL_GetError()))
 #define WIN_X 640 
 #define WIN_Y 960
 
@@ -14,18 +13,26 @@ SDL_Surface *winSurface;
 
 SDL_Surface *font[40];
 
-int init ();
-int load_game_state ();
-int load_fonts ();
-void kill ();
+int init (void);
+int load_game_state (void);
+int load_fonts (void);
+void kill (void);
 int grabc (char c);
 int speak (char msg[256], Uint32 delay);
 
 int
 main (){
-	if(!init()) err;
-	if (!load_fonts()) err;
-	if (!load_game_state()) err;
+	if(init() != 0) {
+        return 1;
+    };
+	if (load_fonts() != 0) {
+        kill();
+        return 1;
+    };
+	if (load_game_state() != 0) {
+        kill();
+        return 1;
+    };
 
 //	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
 
@@ -64,23 +71,27 @@ main (){
 	}
 
 	kill();
+    return 0;
 }
 
 
 int
 init () {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-		err;
+		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
 		return 1;
 	}
 	win = SDL_CreateWindow("Don't Open the Box", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_X, WIN_Y, SDL_WINDOW_SHOWN);
 	if (!win) {
-		err;
+		fprintf(stderr, "SDL_CreateWindow failed: %s\n", SDL_GetError());;
+        SDL_Quit();
 		return 1;
 	}
 	winSurface = SDL_GetWindowSurface(win);
 	if (!winSurface) {
-		err;
+		fprintf(stderr, "SDL_GetWindowSurface failed: %s\n", SDL_GetError());;
+        SDL_DestroyWindow(win);
+        SDL_Quit();
 		return 1;
 	}
 	return 0;
@@ -95,7 +106,11 @@ load_game_state () {
 	} 
 
 	char gs[1];
-	fgets(gs, sizeof gs, gamestate);
+	if (fgets(gs, sizeof gs, gamestate) == NULL) {
+	    fprintf(stderr, "Failed to read gamestate file\n");
+        fclose(gamestate);
+        return 1;
+	}   
 	printf("%s\n", gs);
 
 	fclose(gamestate);
@@ -115,7 +130,7 @@ load_fonts () {
 
 		font[i] = SDL_LoadBMP(filename);
 		if (!font[i]) {
-			err;
+			fprintf(stderr, "SDL_LoadBMP failed for %s: %s\n", filename, SDL_GetError());
 			return 1;
 		}
 	}
@@ -128,10 +143,15 @@ void
 kill () {
 	//shut down
 	for (int i = 0; i < 39; i++) {
-		SDL_FreeSurface(font[i]);
+        if (font[i]) {
+		    SDL_FreeSurface(font[i]);
+            font[i] = NULL;
+        }
 	}
-
-	SDL_DestroyWindow( win );
+    if (win) {
+        SDL_DestroyWindow(win);
+        win = NULL;
+    } 
 	SDL_Quit();
 }
 
@@ -186,7 +206,7 @@ grabc (char c) {
 		//magic numbers lmao
 		case '\n': value = -1; break;
 		case '\0': value = 40; break;
-        	default: value = 41; // return 40 (blank) for non-standard and spaces 
+            default: value = 41; // return 40 (blank) for non-standard and spaces 
     	}
     return value;
 }
@@ -215,7 +235,10 @@ speak (char msg[256], Uint32 delay) {
 			ptr.x = -85;
 		}
 
-		SDL_UpdateWindowSurface(win);
+		if (SDL_UpdateWindowSurface(win) < 0) {
+		    fprintf(stderr, "SDL_WindowSurface failed: %s\n", SDL_GetError());
+            return 1;
+		} 
 		ptr.x+=50;
 	}	
 
