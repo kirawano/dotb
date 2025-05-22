@@ -6,12 +6,14 @@
 #define WIN_X 640 
 #define WIN_Y 960
 
-int lost;
-
 SDL_Window *win;
 SDL_Surface *winSurface;
 
-SDL_Surface *font[40];
+SDL_Surface *font[50];
+
+int first = 0;
+int last = 0;
+char* diqueue[256];
 
 int init (void);
 int load_game_state (void);
@@ -20,26 +22,40 @@ void kill (void);
 int grabc (char c);
 int speak (char msg[256], Uint32 delay);
 
+void addq (char* data);
+char* grabq ();
+int qempty ();
+
 int
 main (){
 	if(init() != 0) {
-        return 1;
-    };
-	if (load_fonts() != 0) {
-        kill();
-        return 1;
-    };
-	if (load_game_state() != 0) {
-        kill();
-        return 1;
-    };
+                return 1;
+        };
 
-//	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
+	if (load_fonts() != 0) {
+                kill();
+                return 1;
+        };
+
+	if (load_game_state() != 0) {
+                kill();
+                return 1;
+        };
+
+	addq("HI");
+	addq("HELLO WORLD");
+
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.y = 480;
+	rect.w = 640;
+	rect.h = 480;
+
+	SDL_FillRect( winSurface, &rect, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
 
 	int running = 1;
 	SDL_Event ev;
 	int msg = 0;
-
 
 	while (running) {
 		// Event loop
@@ -53,14 +69,7 @@ main (){
 				case SDL_KEYDOWN:
 					switch (ev.key.keysym.sym) {
 						case SDLK_z:
-							if (msg < 2) {
-								speak("HELLO WORLD", 50);
-								++msg;
-							}
-							break;
-						case SDLK_x:
-							speak("HELLO WORLD", 25);
-							++msg;
+							if (!qempty()) speak(grabq(), 50);
 							break;
 					}
 					break;
@@ -74,6 +83,30 @@ main (){
     return 0;
 }
 
+//queue helper functions
+void
+addq (char* data) {
+	diqueue[last] = data; 
+	last++;
+}
+char*
+grabq () {
+	if (!qempty()) {
+		char* ret = diqueue[first];
+		++first;
+		return ret;
+	}
+	return NULL;
+}
+int
+qempty () {
+	if (first == last) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
 
 int
 init () {
@@ -122,7 +155,7 @@ load_fonts () {
 	char index[10];
 	char bmp[5] = ".bmp";
 
-	for (int i = 0; i < 40; i++) {
+	for (int i = 0; i < 50; i++) {
 		char filename[30] = "assets/fonts/";
 		sprintf(index, "%d", i);
 		strcat(index, bmp);
@@ -190,23 +223,34 @@ grabc (char c) {
 		case 'X': value = 23; break;
 		case 'Y': value = 24; break;
 		case 'Z': value = 25; break;
-		case '?': value = 26; break;
-		case '.': value = 27; break;
-		case ',': value = 28; break;
-		case '0': value = 29; break;
-		case '1': value = 30; break;
-		case '2': value = 31; break;
-		case '3': value = 32; break;
-		case '4': value = 33; break;
-		case '5': value = 34; break;
-		case '6': value = 35; break;
-		case '7': value = 36; break;
-		case '8': value = 37; break;
-		case '9': value = 38; break;
+		case '(': value = 26; break;
+		case ')': value = 27; break;
+		case ' ': value = 28; break;
+		case '!': value = 29; break;
+		case '?': value = 30; break;
+		case ':': value = 31; break;
+		case ';': value = 32; break;
+		case '<': value = 33; break;
+		case '>': value = 34; break;
+		case '=': value = 35; break;
+		case '/': value = 36; break;
+		case '0': value = 37; break;
+		case '1': value = 38; break;
+		case '2': value = 39; break;
+		case '3': value = 40; break;
+		case '4': value = 41; break;
+		case '5': value = 42; break;
+		case '6': value = 43; break;
+		case '7': value = 44; break;
+		case '8': value = 45; break;
+		case '9': value = 46; break;
+		case ',': value = 47; break;
+		case '.': value = 48; break;
+		case '"': value = 48; break;
+		case '\'': value = 49; break;
 		//magic numbers lmao
 		case '\n': value = -1; break;
-		case '\0': value = 40; break;
-            default: value = 41; // return 40 (blank) for non-standard and spaces 
+        	default: value = 100; // return 40 (blank) for non-standard and spaces 
     	}
     return value;
 }
@@ -220,7 +264,7 @@ speak (char msg[256], Uint32 delay) {
 
 	SDL_Rect ptr;
 	ptr.x = 15;
-	ptr.y = 630;
+	ptr.y = 480;
 
 	for (int i = 0; i < 256; i++) {	
 		if (msg[i] == '\0') return 0;
@@ -232,14 +276,14 @@ speak (char msg[256], Uint32 delay) {
 		}
 		else {
 			ptr.y += 50;
-			ptr.x = -85;
+			ptr.x = -10;
 		}
 
 		if (SDL_UpdateWindowSurface(win) < 0) {
-		    fprintf(stderr, "SDL_WindowSurface failed: %s\n", SDL_GetError());
-            return 1;
+		        fprintf(stderr, "SDL_WindowSurface failed: %s\n", SDL_GetError());
+                        return 1;
 		} 
-		ptr.x+=50;
+		ptr.x+=25;
 	}	
 
 	return 0;

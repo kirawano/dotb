@@ -13,4 +13,4 @@ all: $(OBJS)
 
 clean:
 	rm $(OBJ_NAME)
-	rm *.o # just in case we have any leftovers in the future
+	# rm *.o # just in case we have any leftovers in the future
