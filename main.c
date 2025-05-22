@@ -25,7 +25,7 @@ int
 main (){
 	if(!init()) err;
 	if (!load_fonts()) err;
-	if (!load_game_state()) err;
+	//if (!load_game_state()) err;
 
 	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
 
@@ -46,7 +46,7 @@ main (){
 					switch (ev.key.keysym.sym) {
 						case SDLK_z:
 							if (msg < 2) {
-								speak("HELLO WORLD", 50);
+								speak("HELLO, WORLD!\nHOW ARE YOU?", 50);
 								++msg;
 							}
 							break;
@@ -106,7 +106,7 @@ load_fonts () {
 	char index[10];
 	char bmp[5] = ".bmp";
 
-	for (int i = 0; i < 40; i++) {
+	for (int i = 0; i < 50; i++) {
 		char filename[30] = "assets/fonts/";
 		sprintf(index, "%d", i);
 		strcat(index, bmp);
@@ -222,7 +222,7 @@ speak (char msg[256], Uint32 delay) {
 		}
 		else {
 			ptr.y += 50;
-			ptr.x = -85;
+			ptr.x = -10;
 		}
 
 		SDL_UpdateWindowSurface(win);
