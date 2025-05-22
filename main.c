@@ -7,12 +7,14 @@
 #define WIN_X 640 
 #define WIN_Y 960
 
-int lost;
-
 SDL_Window *win;
 SDL_Surface *winSurface;
 
 SDL_Surface *font[50];
+
+int first = 0;
+int last = 0;
+char* diqueue[256];
 
 int init ();
 int load_game_state ();
@@ -21,13 +23,26 @@ void kill ();
 int grabc (char c);
 int speak (char msg[256], Uint32 delay);
 
+void addq (char* data);
+char* grabq ();
+int qempty ();
+
 int
 main (){
+	addq("HI");
+	addq("HELLO WORLD");
+	
+
 	if(!init()) err;
 	if (!load_fonts()) err;
 	//if (!load_game_state()) err;
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.y = 480;
+	rect.w = 640;
+	rect.h = 480;
 
-	SDL_FillRect( winSurface, NULL, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
+	SDL_FillRect( winSurface, &rect, SDL_MapRGB( winSurface->format, 255, 255, 255 ) );
 
 	int running = 1;
 	SDL_Event ev;
@@ -45,14 +60,7 @@ main (){
 				case SDL_KEYDOWN:
 					switch (ev.key.keysym.sym) {
 						case SDLK_z:
-							if (msg < 2) {
-								speak("HELLO, WORLD!\nHOW ARE YOU?", 50);
-								++msg;
-							}
-							break;
-						case SDLK_x:
-							speak(",",25);
-							++msg;
+							if (!qempty()) speak(grabq(), 50);
 							break;
 					}
 					break;
@@ -65,6 +73,30 @@ main (){
 	kill();
 }
 
+//queue helper functions
+void
+addq (char* data) {
+	diqueue[last] = data; 
+	last++;
+}
+char*
+grabq () {
+	if (!qempty()) {
+		char* ret = diqueue[first];
+		++first;
+		return ret;
+	}
+	return NULL;
+}
+int
+qempty () {
+	if (first == last) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
 
 int
 init () {
@@ -210,7 +242,7 @@ speak (char msg[256], Uint32 delay) {
 
 	SDL_Rect ptr;
 	ptr.x = 15;
-	ptr.y = 630;
+	ptr.y = 480;
 
 	for (int i = 0; i < 256; i++) {	
 		if (msg[i] == '\0') return 0;
