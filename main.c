@@ -37,10 +37,12 @@ main (){
                 return 1;
         };
 
+        /*
 	if (load_game_state() != 0) {
                 kill();
                 return 1;
         };
+        */
 
 	addq("HI");
 	addq("HELLO WORLD");
