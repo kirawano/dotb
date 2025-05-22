@@ -136,7 +136,7 @@ int
 load_game_state () {
 	FILE* gamestate = fopen("gamestate", "r");
 	if (!gamestate) {
-		perror("File opening failed");
+		perror("Faild to read gamestate file");
 		return 1;
 	} 
 
