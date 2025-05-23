@@ -1,9 +1,9 @@
-DONE implement text rendering
-TODO tic tac toe game + AI 
-DONE Dialogue logic
-TODO Timer implementation
-TODO Game end screen transition
-TODO Gamestate logic
+- [x] implement text rendering
+- [ ] tic tac toe game + AI 
+- [x] Dialogue logic
+- [ ] Timer implementation
+- [ ] Game end screen transition
+- [ ] Gamestate logic
 
 ### Code Fragmentation
 Currently ``main.c`` feels more unreadable than it needs to be. It feels like most of the "meat" of the code (the main function) is surrounded by boilerplate that could be macro'd out of existence.
