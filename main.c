@@ -10,27 +10,36 @@
 SDL_Window *win;
 SDL_Surface *winSurface;
 
+
+
+//SDL window handling
+int init ();
+int load_game_state ();
+int load_fonts ();
+void kill ();
+
+
+// text rendering
+int grabc (char c);
+int speak (char msg[256], Uint32 delay);
+
 SDL_Surface *font[50];
+
+
+// queue helper functions
+void addq (char* data);
+char* grabq ();
+int qempty ();
 
 int first = 0;
 int last = 0;
 char* diqueue[256];
 
-int init ();
-int load_game_state ();
-int load_fonts ();
-void kill ();
-int grabc (char c);
-int speak (char msg[256], Uint32 delay);
-
-void addq (char* data);
-char* grabq ();
-int qempty ();
-
 int
 main (){
 	addq("HI");
 	addq("HELLO WORLD");
+	addq("WHAT THE SIGMA");
 	
 
 	if(!init()) err;
@@ -73,29 +82,34 @@ main (){
 	kill();
 }
 
-//queue helper functions
-void
-addq (char* data) {
-	diqueue[last] = data; 
-	last++;
-}
-char*
-grabq () {
-	if (!qempty()) {
-		char* ret = diqueue[first];
-		++first;
-		return ret;
-	}
-	return NULL;
-}
+//delay: amount of time between each message bleep
+//TODO clear previous text before rendering new ones
 int
-qempty () {
-	if (first == last) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
+speak (char msg[256], Uint32 delay) {
+	int c;
+
+	SDL_Rect ptr;
+	ptr.x = 15;
+	ptr.y = 480;
+
+	for (int i = 0; i < 256; i++) {	
+		if (msg[i] == '\0') return 0;
+		c = grabc(msg[i]);
+		
+		if (c >= 0) {
+			SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
+			SDL_Delay(delay);
+		}
+		else if (c < 0 || ptr.x > 50){
+			ptr.y += 50;
+			ptr.x = -10;
+		}
+
+		SDL_UpdateWindowSurface(win);
+		ptr.x+=25;
+	}	
+
+	return 0;
 }
 
 int
@@ -166,8 +180,10 @@ kill () {
 	SDL_Quit();
 }
 
+
 /*
-helper functions for speak
+helper functions for speak; I'm using a queue that is able to load dialogue based off the internal clock that the game will eventually keep
+
 */
 
 int 
@@ -234,35 +250,30 @@ grabc (char c) {
 }
 
 
-//delay: amount of time between each message bleep
-//this may not be memory safe but we'll see
-int
-speak (char msg[256], Uint32 delay) {
-	int c;
 
-	SDL_Rect ptr;
-	ptr.x = 15;
-	ptr.y = 480;
 
-	for (int i = 0; i < 256; i++) {	
-		if (msg[i] == '\0') return 0;
-		c = grabc(msg[i]);
-		
-		if (c >= 0) {
-			SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
-			SDL_Delay(delay);
-		}
-		else {
-			ptr.y += 50;
-			ptr.x = -10;
-		}
 
-		SDL_UpdateWindowSurface(win);
-		ptr.x+=25;
-	}	
-
-	return 0;
+//queue helper functions
+void
+addq (char* data) {
+	diqueue[last] = data; 
+	last++;
 }
-
-
-
+char*
+grabq () {
+	if (!qempty()) {
+		char* ret = diqueue[first];
+		++first;
+		return ret;
+	}
+	return NULL;
+}
+int
+qempty () {
+	if (first == last) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
