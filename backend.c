@@ -10,13 +10,100 @@
 SDL_Window *win;
 SDL_Renderer* renderer;
 
-SDL_Surface *winSurface;
+SDL_Texture *font[51];
 
-SDL_Surface *font[51];
+int 
+draw_background () {
+	SDL_RenderClear(renderer);
 
-void
-load_background () {
 
+	SDL_Surface *image = SDL_LoadBMP("assets/bliss.bmp");
+	SDL_Texture *bliss = SDL_CreateTextureFromSurface(renderer, image);
+	if (!bliss){
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	image = SDL_LoadBMP("assets/box.bmp");
+	SDL_Texture *box = SDL_CreateTextureFromSurface(renderer, image);
+	if (!box) {
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	SDL_FreeSurface(image);
+	image = NULL;
+
+	SDL_Rect blissdst;
+	blissdst.x = 0;
+	blissdst.y = 0;
+	blissdst.w = 640;
+	blissdst.h = 480;
+	SDL_RenderCopy(renderer, bliss, NULL, &blissdst);
+
+	SDL_Rect boxdst;
+	boxdst.x = 150;
+	boxdst.y = 150;
+	boxdst.w = 300;
+	boxdst.h = 300;
+	SDL_RenderCopy(renderer, box, NULL, &boxdst);
+
+	SDL_Rect dialogue_box;
+	dialogue_box.x = 0;
+	dialogue_box.y = 480;
+	dialogue_box.h = 480;
+	dialogue_box.w = 640;
+
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_RenderFillRect(renderer, &dialogue_box);
+	SDL_RenderPresent(renderer);
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	
+	SDL_DestroyTexture(bliss);
+	bliss = NULL;
+	SDL_DestroyTexture(box);
+	box = NULL;
+
+	return 1;
+}
+
+//delay: amount of time between each message bleep
+int
+speak (char msg[256], Uint32 delay) {
+	draw_background();
+	int c;
+
+	SDL_Rect ptr;
+	ptr.x = 15;
+	ptr.y = 490;
+	ptr.w = 15;
+	ptr.h = 25;
+
+	for (int i = 0; i < 256; i++) {	
+		if (msg[i] == '\0') return 0;
+		c = grabc(msg[i]);
+		
+		//magic number means it's a newline
+		if(c == 51 || ptr.x > 625){
+			ptr.y += 50;
+			ptr.x = 15;
+		}
+		else {
+			if (SDL_RenderCopy( renderer, font[c], NULL, &ptr) < 0) {
+				fprintf(stderr, "SDL_RenderCopy failed: %s\n", SDL_GetError());
+				return 1;
+			}
+			ptr.x+=20;
+		}
+
+		//update window after delay
+		SDL_Delay(delay);
+		SDL_RenderPresent(renderer);
+	}	
+
+
+	return 0;
 }
 
 int
@@ -25,57 +112,44 @@ init () {
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
 		return 1;
 	}
-	/*
+
+
+
 	win = SDL_CreateWindow("Don't Open the Box", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIN_X, WIN_Y, SDL_WINDOW_SHOWN);
 	if (!win) {
-		fprintf(stderr, "SDL_CreateWindow failed: %s\n", SDL_GetError());;
-		SDL_Quit();
+		fprintf(stderr, "SDL_CreateWindow failed: %s\n", SDL_GetError());
+		kill();
 		return 1;
 	}
-	*/
-	//naming is hard
-	int res = SDL_CreateWindowAndRenderer(WIN_X, WIN_Y, 0, &win, &renderer);
+	
 
-
-	winSurface = SDL_GetWindowSurface(win);
-	if (!winSurface) {
-		fprintf(stderr, "SDL_GetWindowSurface failed: %s\n", SDL_GetError());;
-        SDL_DestroyWindow(win);
-        SDL_Quit();
+	Uint32 rflags = SDL_RENDERER_SOFTWARE;
+	renderer = SDL_CreateRenderer(win, -1, rflags);
+	if (!renderer) {
+		fprintf(stderr, "SDL_CreateRenderer failed: %s\n", SDL_GetError());
+		kill();
 		return 1;
 	}
-	return 0;
+
+	
+	if (!load_fonts()) {
+		kill();
+		return 1;
+	}
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	
+	if (!draw_background()) {
+		kill();
+		return 1;
+	}
+	
+	SDL_RenderPresent(renderer);
+
+	return 1;
 }
 
-//delay: amount of time between each message bleep
-//TODO clear previous text before rendering new ones
-int
-speak (char msg[256], Uint32 delay) {
-	int c;
 
-	SDL_Rect ptr;
-	ptr.x = 15;
-	ptr.y = 480;
-
-	for (int i = 0; i < 256; i++) {	
-		if (msg[i] == '\0') return 0;
-		c = grabc(msg[i]);
-		
-		if(c == 51 || ptr.x > 500){
-			ptr.y += 50;
-			ptr.x = -10;
-		}
-		else {
-			SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
-			SDL_Delay(delay);
-		}
-
-		SDL_UpdateWindowSurface(win);
-		ptr.x+=25;
-	}	
-
-	return 0;
-}
 
 int 
 grabc (char c) {
@@ -92,20 +166,49 @@ load_fonts () {
 	char index[10];
 	char bmp[5] = ".bmp";
 
+	SDL_Surface *image;
+
 	for (int i = 0; i <= 50; i++) {
 		char filename[30] = "assets/fonts/";
 		sprintf(index, "%d", i);
 		strcat(index, bmp);
 		strcat(filename, index); 
 
-		font[i] = SDL_LoadBMP(filename);
+		image = SDL_LoadBMP(filename);
+		font[i] = SDL_CreateTextureFromSurface(renderer, image);
+
 		if (!font[i]) {
 			fprintf(stderr, "SDL_LoadBMP failed for %s: %s\n", filename, SDL_GetError());
-			return 1;
+			return 0;
 		}
 	}
 
-	return 0;
+	SDL_FreeSurface(image);
+	image = NULL;
+
+	return 1;
 
 }
+
+void 
+kill () {
+	//shut down
+	for (int i = 0; i < 52; i++) {
+        	if (font[i]) {
+			SDL_DestroyTexture(font[i]);
+            		font[i] = NULL;
+        	}
+	}
+
+	if (win) {
+        	SDL_DestroyWindow(win);
+        	win = NULL;
+    	} 
+	if (renderer) {
+		SDL_DestroyRenderer(renderer);
+		renderer = NULL;
+    	}
+	SDL_Quit();
+}
+
 

@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "include/backend.h"
+#include "include/dotb.h"
 
 #define WIN_X 640 
 #define WIN_Y 960
@@ -10,6 +11,52 @@
 int first = 0;
 int last = 0;
 char* diqueue[256];
+
+int
+main (){
+	if(!init()) {
+                return 1;
+        };
+
+        /*
+	if (load_game_state() != 0) {
+                kill();
+                return 1;
+        };
+        */
+	addq("DON'T OPEN THE BOX.\nSERIOUSLY, JUST DON'T DO IT.");
+
+	int running = 1;
+	SDL_Event ev;
+	int msg = 0;
+
+	while (running) {
+		// Event loop
+		while (SDL_PollEvent(&ev) != 0) {
+			switch (ev.type) {
+				case SDL_QUIT:
+					running = 0;
+					printf("quitting\n");
+					break;
+
+				case SDL_KEYDOWN:
+					switch (ev.key.keysym.sym) {
+						case SDLK_z:
+							if (!qempty()) speak(grabq(), 50);
+							break;
+						case SDLK_x:
+							if (!qempty()) speak(grabq(), 25);
+					}
+					break;
+			}
+		}
+
+		SDL_Delay(100);
+	}
+
+	kill();
+    return 0;
+}
 
 int
 load_game_state () {
@@ -60,54 +107,3 @@ grabq () {
 	return NULL;
 }
 
-int
-main (int argc, char *argv[]){
-	if(init() != 0) {
-                return 1;
-        };
-
-	if (load_fonts() != 0) {
-                kill();
-                return 1;
-        };
-
-        /*
-	if (load_game_state() != 0) {
-                kill();
-                return 1;
-        };
-        */
-
-	addq("DON'T OPEN THE BOX");
-
-	int running = 1;
-	SDL_Event ev;
-	int msg = 0;
-
-	while (running) {
-		// Event loop
-		while (SDL_PollEvent(&ev) != 0) {
-			switch (ev.type) {
-				case SDL_QUIT:
-					running = 0;
-					printf("quitting\n");
-					break;
-
-				case SDL_KEYDOWN:
-					switch (ev.key.keysym.sym) {
-						case SDLK_z:
-							if (!qempty()) speak(grabq(), 50);
-							break;
-						case SDLK_x:
-							if (!qempty()) speak(grabq(), 25);
-					}
-					break;
-			}
-		}
-
-		SDL_Delay(100);
-	}
-
-	kill();
-    return 0;
-}
