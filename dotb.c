@@ -1,15 +1,21 @@
 #include <stdio.h>
+#include <string.h>
 
 #include <SDL2/SDL.h>
 
 #include "include/backend.h"
 #include "include/dotb.h"
+#include "include/dialogue.h"
+
 #define WIN_X 640 
 #define WIN_Y 960
 
 int first = 0;
 int last = 0;
-char* diqueue[256];
+const char * diqueue[256];
+
+int timer = 0;
+int prev_timer = 0;
 
 int
 main (){
@@ -22,14 +28,21 @@ main (){
                 kill();
                 return 1;
         };
-        
-	addq("DON'T OPEN THE BOX.\nSERIOUSLY, JUST DON'T DO IT.");
+
+	const char *dialogue;
 
 	int running = 1;
 	SDL_Event ev;
 	int msg = 0;
 
+
 	while (running) {
+		timer = (int) (SDL_GetTicks()/1000);
+		if (timer != prev_timer && get_dialogue(timer, &dialogue)){
+			addq(dialogue);
+			prev_timer = timer;
+		}
+
 		// Event loop
 		while (SDL_PollEvent(&ev) != 0) {
 			switch (ev.type) {
@@ -50,7 +63,7 @@ main (){
 			}
 		}
 
-		SDL_Delay(100);
+		SDL_Delay(10);
 	}
 
 	kill();
@@ -81,7 +94,8 @@ load_game_state () {
 		fclose(gamestate);
 		return 0;
 	}   
-	printf("%s\n", gs);
+	timer = atoi(gs);
+	printf("%i", timer);
 
 	fclose(gamestate);
 	return 1;
@@ -89,7 +103,7 @@ load_game_state () {
 
 //queue helper functions
 void
-addq (char* data) {
+addq (const char* data) {
 	diqueue[last] = data; 
 	last++;
 }

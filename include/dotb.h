@@ -11,7 +11,7 @@ int load_game_state ();
 int write_game_state (Uint32 time);
 
 // queue helper functions
-void addq (char* data);
+void addq (const char* data);
 char* grabq ();
 int qempty ();
 
