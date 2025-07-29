@@ -3,47 +3,20 @@
 
 #include <SDL2/SDL.h>
 
+#include "include/dotb.h"
+
 #define WIN_X 640 
 #define WIN_Y 960
 
 SDL_Window *win;
 SDL_Surface *winSurface;
 
-
-
-//SDL window handling
-int init ();
-int load_game_state ();
-int load_fonts ();
-void kill ();
-
-
-// text rendering
-int grabc (char c);
-int speak (char msg[256], Uint32 delay);
-
 SDL_Surface *font[50];
-
-
-// queue helper functions
-void addq (char* data);
-char* grabq ();
-int qempty ();
 
 int first = 0;
 int last = 0;
 char* diqueue[256];
 
-int init (void);
-int load_game_state (void);
-int load_fonts (void);
-void kill (void);
-int grabc (char c);
-int speak (char msg[256], Uint32 delay);
-
-void addq (char* data);
-char* grabq ();
-int qempty ();
 
 int
 main (int argc, char *argv[]){
@@ -63,9 +36,8 @@ main (int argc, char *argv[]){
         };
         */
 
-	addq("HI");
-	addq("HELLO WORLD");
-	addq("WHAT THE SIGMA");
+	addq("ABCDEFGHIJKLM\nNOPQRSTUVWXYZ");
+	addq(" 0123456789(),.;:><?! .=.");
 
 	SDL_Rect rect;
 	rect.x = 0;
@@ -119,13 +91,13 @@ speak (char msg[256], Uint32 delay) {
 		if (msg[i] == '\0') return 0;
 		c = grabc(msg[i]);
 		
-		if (c >= 0) {
-			SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
-			SDL_Delay(delay);
-		}
-		else if (c < 0 || ptr.x > 50){
+		if(c == 51 || ptr.x > 500){
 			ptr.y += 50;
 			ptr.x = -10;
+		}
+		else {
+			SDL_BlitSurface(font[c], NULL, winSurface, &ptr);
+			SDL_Delay(delay);
 		}
 
 		SDL_UpdateWindowSurface(win);
@@ -215,78 +187,15 @@ kill () {
 	SDL_Quit();
 }
 
-
-/*
-helper functions for speak; I'm using a queue that is able to load dialogue based off the internal clock that the game will eventually keep
-
-*/
-
 int 
 grabc (char c) {
-	int value;
+	static const char ascii_table[128] = { ['A'] = 0,['B'] = 1,['C'] = 2,['D'] = 3,['E'] = 4,['F'] = 5,['G'] = 6,['H'] = 7,['I'] = 8,['J'] = 9,['K'] = 10,['L'] = 11,['M'] = 12,['N'] = 13,['O'] = 14,['P'] = 15,['Q'] = 16,['R'] = 17,['S'] = 18,['T'] = 19,['U'] = 20,['V'] = 21,['W'] = 22,['X'] = 23,['Y'] = 24,['Z'] = 25, ['('] = 26, [')'] = 27, [' '] = 28, ['!'] = 29, ['?'] = 30, [':'] = 31, [';'] = 32, ['<'] = 33, ['>'] = 34, ['='] = 35, ['/'] = 36, ['0'] = 37, ['1'] = 38, ['2'] = 39, ['3'] = 40, ['4'] = 41, ['5'] = 42, ['6'] = 43, ['7'] = 44, ['8'] = 45, ['9'] = 46, [','] = 47, ['.'] = 48, ['"'] = 49, ['\''] = 50, ['\n'] = 51};
 
-    	switch (c) {
-		case 'A': value = 0; break;
-		case 'B': value = 1; break;
-		case 'C': value = 2; break;
-		case 'D': value = 3; break;
-		case 'E': value = 4; break;
-		case 'F': value = 5; break;
-		case 'G': value = 6; break;
-		case 'H': value = 7; break;
-		case 'I': value = 8; break;
-		case 'J': value = 9; break;
-		case 'K': value = 10; break;
-		case 'L': value = 11; break;
-		case 'M': value = 12; break;
-		case 'N': value = 13; break;
-		case 'O': value = 14; break;
-		case 'P': value = 15; break;
-		case 'Q': value = 16; break;
-		case 'R': value = 17; break;
-		case 'S': value = 18; break;
-		case 'T': value = 19; break;
-		case 'U': value = 20; break;
-		case 'V': value = 21; break;
-		case 'W': value = 22; break;
-		case 'X': value = 23; break;
-		case 'Y': value = 24; break;
-		case 'Z': value = 25; break;
-		case '(': value = 26; break;
-		case ')': value = 27; break;
-		case ' ': value = 28; break;
-		case '!': value = 29; break;
-		case '?': value = 30; break;
-		case ':': value = 31; break;
-		case ';': value = 32; break;
-		case '<': value = 33; break;
-		case '>': value = 34; break;
-		case '=': value = 35; break;
-		case '/': value = 36; break;
-		case '0': value = 37; break;
-		case '1': value = 38; break;
-		case '2': value = 39; break;
-		case '3': value = 40; break;
-		case '4': value = 41; break;
-		case '5': value = 42; break;
-		case '6': value = 43; break;
-		case '7': value = 44; break;
-		case '8': value = 45; break;
-		case '9': value = 46; break;
-		case ',': value = 47; break;
-		case '.': value = 48; break;
-		case '"': value = 48; break;
-		case '\'': value = 49; break;
-		//magic numbers lmao
-		case '\n': value = -1; break;
-        	default: value = 100; // return 40 (blank) for non-standard and spaces 
-    	}
-    return value;
+	if ((unsigned char) c >= 128)
+		return -1; //invalid
+
+	return ascii_table[(unsigned char) c];
 }
-
-
-
-
 
 //queue helper functions
 void
@@ -294,6 +203,7 @@ addq (char* data) {
 	diqueue[last] = data; 
 	last++;
 }
+
 char*
 grabq () {
 	if (!qempty()) {
