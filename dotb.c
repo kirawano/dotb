@@ -4,7 +4,6 @@
 
 #include "include/backend.h"
 #include "include/dotb.h"
-
 #define WIN_X 640 
 #define WIN_Y 960
 
@@ -18,12 +17,12 @@ main (){
                 return 1;
         };
 
-        /*
-	if (load_game_state() != 0) {
+        
+	if (!load_game_state()) {
                 kill();
                 return 1;
         };
-        */
+        
 	addq("DON'T OPEN THE BOX.\nSERIOUSLY, JUST DON'T DO IT.");
 
 	int running = 1;
@@ -59,23 +58,33 @@ main (){
 }
 
 int
+write_game_state (Uint32 time) {
+	FILE* gamestate = fopen("gamestate", "w");
+	fprintf(gamestate, "%d", time);
+	fclose(gamestate);
+	return 0;
+}
+
+int
 load_game_state () {
 	FILE* gamestate = fopen("gamestate", "r");
 	if (!gamestate) {
-		perror("Failed to read gamestate file");
-		return 1;
+		//no gamestate found => make a new one	
+		write_game_state(0);
+		fprintf(stderr, "Save file not found! New save file created, please restart.\n");
+		return 0;
 	} 
 
-	char gs[1];
+	char gs[64];
 	if (fgets(gs, sizeof gs, gamestate) == NULL) {
-		fprintf(stderr, "Failed to read gamestate file\n");
+		fprintf(stderr, "Failed to read save file\n");
 		fclose(gamestate);
-		return 1;
+		return 0;
 	}   
 	printf("%s\n", gs);
 
 	fclose(gamestate);
-	return 0;
+	return 1;
 } 
 
 //queue helper functions

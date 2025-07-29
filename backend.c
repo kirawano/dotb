@@ -12,6 +12,7 @@ SDL_Renderer* renderer;
 
 SDL_Texture *font[51];
 
+//TODO package loading and rendering a texture into a single function for readability
 int 
 draw_background () {
 	SDL_RenderClear(renderer);
