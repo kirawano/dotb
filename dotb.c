@@ -11,7 +11,7 @@
 SDL_Window *win;
 SDL_Surface *winSurface;
 
-SDL_Surface *font[50];
+SDL_Surface *font[51];
 
 int first = 0;
 int last = 0;
@@ -36,8 +36,7 @@ main (int argc, char *argv[]){
         };
         */
 
-	addq("ABCDEFGHIJKLM\nNOPQRSTUVWXYZ");
-	addq(" 0123456789(),.;:><?! .=.");
+	addq("DON'T OPEN THE BOX");
 
 	SDL_Rect rect;
 	rect.x = 0;
@@ -65,6 +64,8 @@ main (int argc, char *argv[]){
 						case SDLK_z:
 							if (!qempty()) speak(grabq(), 50);
 							break;
+						case SDLK_x:
+							if (!qempty()) speak(grabq(), 25);
 					}
 					break;
 			}
@@ -133,15 +134,15 @@ int
 load_game_state () {
 	FILE* gamestate = fopen("gamestate", "r");
 	if (!gamestate) {
-		perror("Faild to read gamestate file");
+		perror("Failed to read gamestate file");
 		return 1;
 	} 
 
 	char gs[1];
 	if (fgets(gs, sizeof gs, gamestate) == NULL) {
-	    fprintf(stderr, "Failed to read gamestate file\n");
-        fclose(gamestate);
-        return 1;
+		fprintf(stderr, "Failed to read gamestate file\n");
+		fclose(gamestate);
+		return 1;
 	}   
 	printf("%s\n", gs);
 
@@ -154,7 +155,7 @@ load_fonts () {
 	char index[10];
 	char bmp[5] = ".bmp";
 
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i <= 50; i++) {
 		char filename[30] = "assets/fonts/";
 		sprintf(index, "%d", i);
 		strcat(index, bmp);
@@ -174,11 +175,11 @@ load_fonts () {
 void 
 kill () {
 	//shut down
-	for (int i = 0; i < 39; i++) {
-        if (font[i]) {
-		    SDL_FreeSurface(font[i]);
-            font[i] = NULL;
-        }
+	for (int i = 0; i < 52; i++) {
+        	if (font[i]) {
+			SDL_FreeSurface(font[i]);
+            		font[i] = NULL;
+        	}
 	}
     if (win) {
         SDL_DestroyWindow(win);
