@@ -14,11 +14,13 @@ int first = 0;
 int last = 0;
 const char * diqueue[256];
 
-int timer = 0;
-int prev_timer = 0;
+int timer;
+int base_timer;
+int prev_timer;
 
 int
 main (){
+	printf("%i\n", timer);
 	if(!init()) {
                 return 1;
         };
@@ -37,7 +39,7 @@ main (){
 
 
 	while (running) {
-		timer = (int) (SDL_GetTicks()/1000);
+		timer = base_timer + (int) (SDL_GetTicks()/1000);
 		if (timer != prev_timer && get_dialogue(timer, &dialogue)){
 			addq(dialogue);
 			prev_timer = timer;
@@ -66,6 +68,7 @@ main (){
 		SDL_Delay(10);
 	}
 
+	write_game_state(timer);
 	kill();
     return 0;
 }
@@ -94,8 +97,7 @@ load_game_state () {
 		fclose(gamestate);
 		return 0;
 	}   
-	timer = atoi(gs);
-	printf("%i", timer);
+	base_timer = atoi(gs);
 
 	fclose(gamestate);
 	return 1;
