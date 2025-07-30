@@ -70,9 +70,9 @@ main (){
 }
 
 int
-write_game_state (Uint32 time) {
+write_game_state (Uint32 timer) {
 	FILE* gamestate = fopen("gamestate", "w");
-	fprintf(gamestate, "%d", time);
+	fprintf(gamestate, "%d", timer);
 	fclose(gamestate);
 	return 0;
 }
@@ -80,11 +80,12 @@ write_game_state (Uint32 time) {
 int
 load_game_state () {
 	FILE* gamestate = fopen("gamestate", "r");
-	if (!gamestate) {
+	if (gamestate == NULL) {
+		gamestate = fopen("gamestate", "a+");
 		//no gamestate found => make a new one	
-		write_game_state(0);
-		fprintf(stderr, "Save file not found! New save file created, please restart.\n");
-		return 0;
+		fprintf(gamestate, "%d", timer);
+		printf("Save file not found! New save file created.\n");
+		rewind(gamestate);	
 	} 
 
 	char gs[64];
