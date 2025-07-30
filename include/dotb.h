@@ -6,6 +6,8 @@
 #ifndef DOTB_H_
 #define DOTB_H_
 
+void update_timer ();
+
 //gamestate functions
 int load_game_state ();
 int write_game_state (Uint32 time);
@@ -14,5 +16,6 @@ int write_game_state (Uint32 time);
 void addq (const char* data);
 char* grabq ();
 int qempty ();
+void first_in_queue (const char* data);
 
 #endif

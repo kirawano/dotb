@@ -3,6 +3,8 @@
 static char * const dialogue_table[] = {
 	[3] = "DON'T OPEN THE BOX.\nPLEASE, FOR MY SAKE",
 	[4] = "LOOK WHO JUST OPENED THE BOX",
+	[5] = "CERTAINLY WASN'T ME",
+	[6] = "PROBABLY WAS YOU",
 };
 
 int get_dialogue(int time, const char **out){

@@ -31,7 +31,6 @@ main (){
                 return 1;
         };
 
-	const char *dialogue;
 
 	int running = 1;
 	SDL_Event ev;
@@ -39,11 +38,8 @@ main (){
 
 
 	while (running) {
-		timer = base_timer + (int) (SDL_GetTicks()/1000);
-		if (timer != prev_timer && get_dialogue(timer, &dialogue)){
-			addq(dialogue);
-			prev_timer = timer;
-		}
+
+		update_timer();
 
 		// Event loop
 		while (SDL_PollEvent(&ev) != 0) {
@@ -103,6 +99,18 @@ load_game_state () {
 	return 1;
 } 
 
+//update timer, then check lookup table to see if (a) the dialogue has been grabbed before and if (b) dialogue exists
+void
+update_timer () {
+	const char *dialogue;
+
+	timer = base_timer + (int) (SDL_GetTicks()/1000);
+	if (timer != prev_timer && get_dialogue(timer, &dialogue)){
+		addq(dialogue);
+		prev_timer = timer;
+	}
+}
+
 //queue helper functions
 void
 addq (const char* data) {
@@ -131,4 +139,14 @@ grabq () {
 	}
 	return NULL;
 }
+
+//THE WORST HACK THAT I'VE HAD THE DISPLEASURE OF LAYING MY EYES ON
+void
+first_in_queue (const char* data) {
+	if (!qempty()) {
+		--first;
+		diqueue[first] = data;
+	}
+}
+
 

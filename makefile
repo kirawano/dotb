@@ -1,4 +1,4 @@
-OBJS = dotb.c backend.c dialogue.c
+OBJS = dotb.c backend.c dialogue.c tictactoe.c
 
 CC = clang
 

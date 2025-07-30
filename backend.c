@@ -1,8 +1,11 @@
+//TODO rewrite functions to handle state more cleanly
+
 #include <stdio.h>
 
 #include <SDL2/SDL.h>
 
 #include "include/backend.h"
+#include "include/dotb.h"
 
 #define WIN_X 640 
 #define WIN_Y 960
@@ -86,7 +89,7 @@ speak (char msg[256], Uint32 delay) {
 		c = grabc(msg[i]);
 		
 		//magic number means it's a newline
-		if(c == 51 || ptr.x > 625){
+		if(c == 51 || ptr.x > WIN_X - 15){
 			ptr.y += 50;
 			ptr.x = 15;
 		}
@@ -97,6 +100,16 @@ speak (char msg[256], Uint32 delay) {
 			}
 			ptr.x+=20;
 		}
+
+		//chop the rest of the text off, make it first in line in the queue, and return so user can read the rest of the displayed text
+		if (ptr.y  >= WIN_Y - 15){
+			char remainder[256];
+			strncpy(remainder, msg + i, 256 - i);
+			first_in_queue(remainder);
+			return 0;
+		}
+
+		update_timer();
 
 		//update window after delay
 		SDL_Delay(delay);
