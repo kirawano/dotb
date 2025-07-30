@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "include/dotb.h"
 #include "include/backend.h"
 
@@ -47,10 +46,24 @@ void reset (struct Gamestate * g) {
 
 }
 
+int num_available_moves (struct Gamestate gamestate) {
+	int av_count = 0;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			av_count+=gamestate.available_moves[i][j];
+		}
+	}
+	return av_count;
+}	
+
 //hard-coding in is prolly faster
 int check_winner (struct Gamestate * gamestate){
 	for (int i = 0; i < 3; i++) {
 		if ( gamestate->grid[i][0] != 0 && gamestate->grid[i][0] == gamestate->grid[i][1] && gamestate->grid[i][1] == gamestate->grid[i][2]) {
+			gamestate->winner = gamestate->grid[i][0];
+			return 1;
+		}
+		if ( gamestate->grid[0][i] != 0 && gamestate->grid[0][i] == gamestate->grid[1][i] && gamestate->grid[1][i] == gamestate->grid[2][i]) {
 			gamestate->winner = gamestate->grid[i][0];
 			return 1;
 		}
@@ -65,12 +78,7 @@ int check_winner (struct Gamestate * gamestate){
 		return 1;
 	}
 
-	int av_count = 0;
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			av_count+=gamestate->available_moves[i][j];
-		}
-	}
+	int av_count = num_available_moves(*gamestate);
 	//draw
 	if (av_count == 0) {
 		gamestate->winner = 0;
@@ -113,6 +121,13 @@ void copy (struct Gamestate * cpy, struct Gamestate g) {
 }
 
 int eval (struct Gamestate g, int* x, int* y) {
+	// opening move will always be at center
+	if (num_available_moves(g) == 9) {
+		*x = 1;
+		*y = 1; 
+		return 0;
+	}
+
 	if (check_winner(&g)) return g.winner * g.current_turn;		
 
 	int e = 1;
@@ -137,6 +152,13 @@ int eval (struct Gamestate g, int* x, int* y) {
 
 // eval with depth
 int easy_eval (struct Gamestate g, int* x, int* y, int depth) {
+	// opening move will always be at center
+	if (num_available_moves(g) == 9) {
+		*x = 1;
+		*y = 1; 
+		return 0;
+	}
+
 	if (depth == 0) return 0;
 	if (check_winner(&g)) return g.winner * g.current_turn;	
 
@@ -160,7 +182,6 @@ int easy_eval (struct Gamestate g, int* x, int* y, int depth) {
 	return e;
 }
 
-/*
 int main () {
 	struct Gamestate gamestate;
 
@@ -176,6 +197,7 @@ int main () {
 
 	int x, y, e;
 	eval(gamestate, &x, &y);
+	printf("%i, %i\n", x, y);
 
 	while (!check_winner(&gamestate)) {
 		e = eval(gamestate, &x, &y);
@@ -196,4 +218,4 @@ int main () {
 
 	return 0;
 }
-*/
+
