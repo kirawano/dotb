@@ -1,0 +1,7 @@
+*
+!.gitignore
+!*.c
+!makefile
+!assets
+!docs
+!include
