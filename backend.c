@@ -183,7 +183,7 @@ load_fonts () {
 	SDL_Surface *image;
 
 	for (int i = 0; i <= 50; i++) {
-		char filename[30] = "assets/fonts/";
+		char filename[33] = "../assets/fonts/";
 		sprintf(index, "%d", i);
 		strcat(index, bmp);
 		strcat(filename, index); 
