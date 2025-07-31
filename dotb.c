@@ -40,6 +40,7 @@ main (){
 	while (running) {
 
 		update_timer();
+		draw_notifier();
 
 		// Event loop
 		while (SDL_PollEvent(&ev) != 0) {

@@ -7,4 +7,4 @@ Instead, I may just lock any rendering logic to ``backend.c``, which will formal
 - [ ] integrate tic tac toe with ``dotb.c``
 - [ ] handle drawing of multiple backgrounds for different scenes
 - [ ] implement mouse-based UI with options for tic tac toe and dialogue
-- [ ] make background dynamic to notify player when new dialogue is queued
+- [x] make background dynamic to notify player when new dialogue is queued

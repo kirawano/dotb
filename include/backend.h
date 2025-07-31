@@ -12,6 +12,7 @@ void kill ();
 int grabc (char c);
 int speak (char msg[256], Uint32 delay);
 
+int draw_notifier();
 int draw_background ();
 
 #endif

@@ -182,6 +182,7 @@ int easy_eval (struct Gamestate g, int* x, int* y, int depth) {
 	return e;
 }
 
+/*
 int main () {
 	struct Gamestate gamestate;
 
@@ -218,4 +219,4 @@ int main () {
 
 	return 0;
 }
-
+*/

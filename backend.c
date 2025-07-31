@@ -1,5 +1,6 @@
 //TODO rewrite functions to handle state more cleanly
 
+#include <SDL2/SDL_render.h>
 #include <stdio.h>
 
 #include <SDL2/SDL.h>
@@ -15,9 +16,26 @@ SDL_Renderer* renderer;
 
 SDL_Texture *font[51];
 
+//notifies user if there's new dialogue
+int draw_notifier () {
+	if (!qempty()) {
+		SDL_Rect qbox;
+		qbox.x = 620;
+		qbox.y = 460;
+		qbox.h = 40;
+		qbox.w = 20;
+
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		SDL_RenderFillRect(renderer, &qbox);
+	}
+	SDL_RenderPresent(renderer);
+	return 0;
+}
+
 //TODO package loading and rendering a texture into a single function for readability
 int 
 draw_background () {
+	draw_notifier();
 	SDL_RenderClear(renderer);
 
 
@@ -60,8 +78,9 @@ draw_background () {
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderFillRect(renderer, &dialogue_box);
-	SDL_RenderPresent(renderer);
 
+
+	SDL_RenderPresent(renderer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	
 	SDL_DestroyTexture(bliss);
