@@ -70,15 +70,7 @@ draw_background () {
 	boxdst.h = 300;
 	SDL_RenderCopy(renderer, box, NULL, &boxdst);
 
-	SDL_Rect dialogue_box;
-	dialogue_box.x = 0;
-	dialogue_box.y = 480;
-	dialogue_box.h = 480;
-	dialogue_box.w = 640;
-
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderFillRect(renderer, &dialogue_box);
-
+	draw_dialogue_box();
 
 	SDL_RenderPresent(renderer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -87,6 +79,44 @@ draw_background () {
 	bliss = NULL;
 	SDL_DestroyTexture(box);
 	box = NULL;
+
+	return 1;
+}
+
+void 
+draw_dialogue_box () {
+	SDL_Rect dialogue_box;
+	dialogue_box.x = 0;
+	dialogue_box.y = WIN_Y/2;
+	dialogue_box.h = WIN_Y/2;
+	dialogue_box.w = WIN_X;
+
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_RenderFillRect(renderer, &dialogue_box);
+}
+
+int 
+draw_ttt_board () {
+	draw_dialogue_box();
+
+	SDL_Surface *image = SDL_LoadBMP("assets/ttt.bmp");
+	SDL_Texture *ttt = SDL_CreateTextureFromSurface(renderer, image);
+	if (!ttt){
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	SDL_FreeSurface(image);
+	image = NULL;
+
+	SDL_Rect tttdst;
+	tttdst.x = 0;
+	tttdst.y = 0;
+	tttdst.w = WIN_X;
+	tttdst.h = WIN_Y/2;
+	SDL_RenderCopy(renderer, ttt, NULL, &tttdst);
+
+	SDL_RenderPresent(renderer);
 
 	return 1;
 }

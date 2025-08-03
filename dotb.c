@@ -6,6 +6,7 @@
 #include "include/backend.h"
 #include "include/dotb.h"
 #include "include/dialogue.h"
+#include "include/tictactoe.h"
 
 #define WIN_X 640 
 #define WIN_Y 960
@@ -38,37 +39,69 @@ main (){
 
 
 	while (running) {
+		prim_loop(ev, &running);
 
 		update_timer();
 		draw_notifier();
-
-		// Event loop
-		while (SDL_PollEvent(&ev) != 0) {
-			switch (ev.type) {
-				case SDL_QUIT:
-					running = 0;
-					printf("quitting\n");
-					break;
-
-				case SDL_KEYDOWN:
-					switch (ev.key.keysym.sym) {
-						case SDLK_z:
-							if (!qempty()) speak(grabq(), 50);
-							break;
-						case SDLK_x:
-							if (!qempty()) speak(grabq(), 25);
-					}
-					break;
-			}
-		}
-
-		SDL_Delay(10);
 	}
+
 
 	write_game_state(timer);
 	kill();
     return 0;
 }
+
+
+void prim_loop (SDL_Event ev, int * running) {
+	// Event loop
+	while (SDL_PollEvent(&ev) != 0) {
+		switch (ev.type) {
+			case SDL_QUIT:
+				*running = 0;
+				printf("quitting\n");
+				break;
+
+			case SDL_KEYDOWN:
+				switch (ev.key.keysym.sym) {
+					case SDLK_z:
+						if (!qempty()) speak(grabq(), 50);
+						break;
+					case SDLK_x:
+						if (!qempty()) speak(grabq(), 25);
+						break;
+					case SDLK_t:
+						tictactoe();
+						break;
+				}
+				break;
+		}
+	}
+
+	SDL_Delay(10);
+}
+
+void tictactoe () {
+	draw_ttt_board();
+
+	struct Gamestate g;
+	reset(&g);
+	int i = 0;
+
+	while (!check_winner(&g)) {
+		update_timer();
+
+		print_board(g.grid);
+		make_turn(&g, i, 0);
+		make_turn(&g, 0, i);
+		SDL_Delay(1000);
+		i++;
+	}
+
+	draw_background();
+
+	printf("done");
+}
+
 
 int
 write_game_state (Uint32 timer) {

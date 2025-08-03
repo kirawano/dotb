@@ -186,15 +186,7 @@ int easy_eval (struct Gamestate g, int* x, int* y, int depth) {
 int main () {
 	struct Gamestate gamestate;
 
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			gamestate.available_moves[i][j] = 1;
-			gamestate.grid[i][j] = 0;
-		}
-	}
-	gamestate.current_turn = 1;
-	gamestate.winner = -2;
-	gamestate.ai_x = 1;
+	reset(&gamestate);
 
 	int x, y, e;
 	eval(gamestate, &x, &y);
