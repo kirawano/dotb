@@ -8,3 +8,9 @@ Instead, I may just lock any rendering logic to ``backend.c``, which will formal
 - [x] handle drawing of multiple backgrounds for different scenes
 - [ ] implement mouse-based UI with options for tic tac toe and dialogue
 - [x] make background dynamic to notify player when new dialogue is queued
+
+## August 3rd, 2025
+- [ ] implement mouse-based UI with options for tic tac toe and dialogue
+- [ ] implement end screen transition that keeps you in the end screen if the game is beaten
+- [ ] clean up code for better state handling and such
+- [ ] cross compile and make "final" build of game

@@ -2,17 +2,7 @@
 #include <stdlib.h>
 #include "include/dotb.h"
 #include "include/backend.h"
-
-
-struct Gamestate {
-	int grid[3][3];
-	//each point on the grid is a boolean
-	int available_moves[3][3];
-	int current_turn;
-	int winner;
-	//boolean
-	int ai_x;
-};
+#include "include/tictactoe.h"
 
 //0 for blank, 1 for X, -1 for O
 

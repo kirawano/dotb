@@ -8,9 +8,6 @@
 #include "include/dialogue.h"
 #include "include/tictactoe.h"
 
-#define WIN_X 640 
-#define WIN_Y 960
-
 int first = 0;
 int last = 0;
 const char * diqueue[256];
@@ -55,25 +52,46 @@ main (){
 void prim_loop (SDL_Event ev, int * running) {
 	// Event loop
 	while (SDL_PollEvent(&ev) != 0) {
+		update_timer();
 		switch (ev.type) {
 			case SDL_QUIT:
 				*running = 0;
 				printf("quitting\n");
 				break;
 
-			case SDL_KEYDOWN:
-				switch (ev.key.keysym.sym) {
-					case SDLK_z:
-						if (!qempty()) speak(grabq(), 50);
-						break;
-					case SDLK_x:
-						if (!qempty()) speak(grabq(), 25);
-						break;
-					case SDLK_t:
-						tictactoe();
+			case SDL_MOUSEBUTTONUP:
+				switch (ev.button.button) {
+					case SDL_BUTTON_LEFT:
+						if (ev.button.x >= DIALOGUE_BOX_X && ev.button.x <= DIALOGUE_BOX_X + DIALOGUE_BOX_SIZE && ev.button.y >= DIALOGUE_BOX_Y && ev.button.y <= DIALOGUE_BOX_Y + DIALOGUE_BOX_SIZE && !qempty()) {
+							speak(grabq(), 50);
+						}
+
+						if (ev.button.x >= TTT_BOX_X && ev.button.x <= TTT_BOX_X + TTT_BOX_SIZE && ev.button.y >= TTT_BOX_Y && ev.button.y <= TTT_BOX_Y + TTT_BOX_SIZE && !qempty()) {
+							tictactoe();
+						}
+
 						break;
 				}
+
 				break;
+
+			case SDL_MOUSEMOTION:
+				//hack? idk
+				if (ev.motion.x >= DIALOGUE_BOX_X && ev.motion.x <= DIALOGUE_BOX_X + DIALOGUE_BOX_SIZE && ev.motion.y >= DIALOGUE_BOX_Y && ev.motion.y <= DIALOGUE_BOX_Y + DIALOGUE_BOX_SIZE) {
+					draw_speak_button(1);
+				}
+				else {
+					draw_speak_button(0);
+				}
+
+				if (ev.motion.x >= TTT_BOX_X && ev.motion.x <= TTT_BOX_X + TTT_BOX_SIZE && ev.motion.y >= TTT_BOX_Y && ev.motion.y <= TTT_BOX_Y + TTT_BOX_SIZE) {
+					draw_ttt_button(1);
+				}
+				else {
+					draw_ttt_button(0);
+				}
+				
+
 		}
 	}
 
@@ -168,7 +186,7 @@ qempty () {
 char*
 grabq () {
 	if (!qempty()) {
-		char* ret = diqueue[first];
+		const char* ret = diqueue[first];
 		++first;
 		return ret;
 	}

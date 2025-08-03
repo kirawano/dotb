@@ -8,9 +8,6 @@
 #include "include/backend.h"
 #include "include/dotb.h"
 
-#define WIN_X 640 
-#define WIN_Y 960
-
 SDL_Window *win;
 SDL_Renderer* renderer;
 
@@ -56,21 +53,33 @@ draw_background () {
 	SDL_FreeSurface(image);
 	image = NULL;
 
-	SDL_Rect blissdst;
-	blissdst.x = 0;
-	blissdst.y = 0;
-	blissdst.w = 640;
-	blissdst.h = 480;
-	SDL_RenderCopy(renderer, bliss, NULL, &blissdst);
 
-	SDL_Rect boxdst;
-	boxdst.x = 150;
-	boxdst.y = 150;
-	boxdst.w = 300;
-	boxdst.h = 300;
-	SDL_RenderCopy(renderer, box, NULL, &boxdst);
+	image = SDL_LoadBMP("assets/dialogue.bmp");
+	SDL_Texture *dialogue = SDL_CreateTextureFromSurface(renderer, image);
+	if (!dialogue) {
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return 0;
+	}
 
-	draw_dialogue_box();
+	SDL_FreeSurface(image);
+	image = NULL;
+
+	SDL_Rect dst;
+
+	dst.x = 0;
+	dst.y = 0;
+	dst.w = 640;
+	dst.h = 480;
+	SDL_RenderCopy(renderer, bliss, NULL, &dst);
+
+	dst.x = 150;
+	dst.y = 150;
+	dst.w = 300;
+	dst.h = 300;
+	SDL_RenderCopy(renderer, box, NULL, &dst);
+
+
+	if (!draw_dialogue_box()) return 0;	
 
 	SDL_RenderPresent(renderer);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -83,16 +92,81 @@ draw_background () {
 	return 1;
 }
 
-void 
+int 
 draw_dialogue_box () {
-	SDL_Rect dialogue_box;
-	dialogue_box.x = 0;
-	dialogue_box.y = WIN_Y/2;
-	dialogue_box.h = WIN_Y/2;
-	dialogue_box.w = WIN_X;
+	SDL_Rect dst;
+
+	dst.x = 0;
+	dst.y = WIN_Y/2;
+	dst.h = WIN_Y/2;
+	dst.w = WIN_X;
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderFillRect(renderer, &dialogue_box);
+	SDL_RenderFillRect(renderer, &dst);
+
+
+	if (!draw_speak_button(0)) return 0;
+	if (!draw_ttt_button(0)) return 0;
+
+	return 1;
+}
+
+//hovered: boolean that will render a different image if cursor hovers over the button
+int
+draw_ttt_button (int hovered) {
+	SDL_Rect dst;
+
+	//defined in header file
+	dst.x = TTT_BOX_X;
+	dst.y = TTT_BOX_Y;
+	dst.w = TTT_BOX_SIZE; 
+	dst.h = TTT_BOX_SIZE;
+
+	SDL_Surface * image;
+	if (!hovered) image = SDL_LoadBMP("assets/ttt_box.bmp");
+	else image = SDL_LoadBMP("assets/ttt_box_hovered.bmp");
+
+	SDL_Texture *ttt = SDL_CreateTextureFromSurface(renderer, image);
+	if (!ttt) {
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	SDL_FreeSurface(image);
+	image = NULL;
+	
+	SDL_RenderCopy(renderer, ttt, NULL, &dst);
+
+	return 1;
+}
+
+//hovered: boolean that will render a different image if cursor hovers over the button
+int
+draw_speak_button (int hovered) {
+	SDL_Rect dst;
+
+	//defined in header file
+	dst.x = DIALOGUE_BOX_X;
+	dst.y = DIALOGUE_BOX_Y;
+	dst.w = DIALOGUE_BOX_SIZE; 
+	dst.h = DIALOGUE_BOX_SIZE;
+
+	SDL_Surface * image;
+	if (!hovered) image = SDL_LoadBMP("assets/dialogue.bmp");
+	else image = SDL_LoadBMP("assets/dialogue_hovered.bmp");
+
+	SDL_Texture *dialogue = SDL_CreateTextureFromSurface(renderer, image);
+	if (!dialogue) {
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return 0;
+	}
+
+	SDL_FreeSurface(image);
+	image = NULL;
+	
+	SDL_RenderCopy(renderer, dialogue, NULL, &dst);
+
+	return 1;
 }
 
 int 
