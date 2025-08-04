@@ -1,3 +1,4 @@
+#include <SDL2/SDL_events.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -67,7 +68,7 @@ void prim_loop (SDL_Event ev, int * running) {
 						}
 
 						if (ev.button.x >= TTT_BOX_X && ev.button.x <= TTT_BOX_X + TTT_BOX_SIZE && ev.button.y >= TTT_BOX_Y && ev.button.y <= TTT_BOX_Y + TTT_BOX_SIZE && !qempty()) {
-							tictactoe();
+							tictactoe(ev, running);
 						}
 
 						break;
@@ -98,22 +99,47 @@ void prim_loop (SDL_Event ev, int * running) {
 	SDL_Delay(10);
 }
 
-void tictactoe () {
+void tictactoe (SDL_Event ev, int * running) {
 	draw_ttt_board();
 
 	struct Gamestate g;
 	reset(&g);
 	int i = 0;
 
-	while (!check_winner(&g)) {
+	while (SDL_PollEvent(&ev) != 0 && !check_winner(&g)) {
+		int x, y, ax, ay;
 		update_timer();
+		switch (ev.type) {
+			case SDL_QUIT:
+				*running = 0;
+				printf("quitting\n");
+			break;
 
-		print_board(g.grid);
-		make_turn(&g, i, 0);
-		make_turn(&g, 0, i);
-		SDL_Delay(1000);
-		i++;
+			case SDL_MOUSEBUTTONUP:
+				switch (ev.button.button) {
+					case SDL_BUTTON_LEFT:
+						//TODO clean this hack up and set positions correctly
+						if (ev.button.x >= 20 && ev.button.x <= 220) x = 0;	
+						else if (ev.button.x >= 220 && ev.button.x <= 420) x = 1;
+						else if (ev.button.x >= 220 && ev.button.x <= 420) x = 2;
+
+						if (ev.button.y >= 20 && ev.button.y <= 220) y = 0;
+						else if (ev.button.y >= 220 && ev.button.y <= 420) y = 1;
+						else if (ev.button.y >= 220 && ev.button.y <= 420) y = 2;
+						
+						make_turn(&g, x, y);
+
+						int ev = eval(g, &ax, &ay);
+
+						break;
+				}
+			break;
+
+		}
 	}
+
+	i++;
+
 
 	draw_background();
 

@@ -19,7 +19,7 @@ int qempty ();
 void first_in_queue (const char* data);
 
 //game loops
-void tictactoe ();
+void tictactoe (SDL_Event ev, int * running);
 void prim_loop (SDL_Event ev, int * running);
 
 #endif
