@@ -39,14 +39,14 @@ draw_background () {
 	SDL_Surface *image = SDL_LoadBMP("assets/bliss.bmp");
 	SDL_Texture *bliss = SDL_CreateTextureFromSurface(renderer, image);
 	if (!bliss){
-		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed in function draw_background: %s\n", SDL_GetError());
 		return 0;
 	}
 
 	image = SDL_LoadBMP("assets/box.bmp");
 	SDL_Texture *box = SDL_CreateTextureFromSurface(renderer, image);
 	if (!box) {
-		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed in function draw_background: %s\n", SDL_GetError());
 		return 0;
 	}
 
@@ -54,12 +54,14 @@ draw_background () {
 	image = NULL;
 
 
+    /*
 	image = SDL_LoadBMP("assets/dialogue.bmp");
 	SDL_Texture *dialogue = SDL_CreateTextureFromSurface(renderer, image);
 	if (!dialogue) {
-		fprintf(stderr, "SDL_CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		fprintf(stderr, "SDL_CreateTextureFromSurface failed in function draw_background: %s\n", SDL_GetError());
 		return 0;
 	}
+	*/
 
 	SDL_FreeSurface(image);
 	image = NULL;
@@ -123,8 +125,9 @@ draw_ttt_button (int hovered) {
 	dst.h = TTT_BOX_SIZE;
 
 	SDL_Surface * image;
-	if (!hovered) image = SDL_LoadBMP("assets/ttt_box.bmp");
-	else image = SDL_LoadBMP("assets/ttt_box_hovered.bmp");
+    //FIXME
+	if (!hovered) image = SDL_LoadBMP("assets/box.bmp");
+	else image = SDL_LoadBMP("assets/box.bmp");
 
 	SDL_Texture *ttt = SDL_CreateTextureFromSurface(renderer, image);
 	if (!ttt) {
@@ -144,16 +147,16 @@ draw_ttt_button (int hovered) {
 int
 draw_speak_button (int hovered) {
 	SDL_Rect dst;
-
-	//defined in header file
+//defined in header file
 	dst.x = DIALOGUE_BOX_X;
 	dst.y = DIALOGUE_BOX_Y;
 	dst.w = DIALOGUE_BOX_SIZE; 
 	dst.h = DIALOGUE_BOX_SIZE;
 
 	SDL_Surface * image;
-	if (!hovered) image = SDL_LoadBMP("assets/dialogue.bmp");
-	else image = SDL_LoadBMP("assets/dialogue_hovered.bmp");
+    //FIXME
+	if (!hovered) image = SDL_LoadBMP("assets/box.bmp");
+	else image = SDL_LoadBMP("assets/box.bmp");
 
 	SDL_Texture *dialogue = SDL_CreateTextureFromSurface(renderer, image);
 	if (!dialogue) {
