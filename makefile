@@ -10,6 +10,9 @@ OBJ_NAME = dotb
 
 .PHONY: all clean
 
+tictactoe:
+	$(CC) tictactoe.c -o tictactoe
+
 all: $(OBJS) 
 	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OBJ_NAME)
 
