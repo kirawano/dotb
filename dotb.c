@@ -18,7 +18,7 @@ int base_timer;
 int prev_timer;
 
 int
-main (){
+old_main (){
 	printf("%i\n", timer);
 	if(!init()) {
                 return 1;
@@ -180,6 +180,7 @@ load_game_state () {
 } 
 
 //update timer, then check lookup table to see if (a) the dialogue has been grabbed before and if (b) dialogue exists
+//is this shit?
 void
 update_timer () {
 	const char *dialogue;
