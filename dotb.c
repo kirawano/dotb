@@ -99,7 +99,8 @@ void prim_loop (SDL_Event ev, int * running) {
 	SDL_Delay(10);
 }
 
-void tictactoe (SDL_Event ev, int * running) {
+void
+tictactoe (SDL_Event ev, int * running) {
 	draw_ttt_board();
 
 	struct Gamestate g;
