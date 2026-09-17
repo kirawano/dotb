@@ -172,6 +172,7 @@ int hard_eval(struct Gamestate g, int * x, int * y) {
     return score;
 }
 
+/*
 int main () {
 	struct Gamestate gamestate;
 
@@ -209,4 +210,5 @@ int main () {
 
 	return 0;
 }
+*/
 
